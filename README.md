@@ -4,7 +4,7 @@ A ChatGPT-style AI assistant for the Sunny Scholars Learning Kit, built with Nex
 
 ## What this is
 
-This is a **separate Next.js project** living inside the `Sunny_Scholars` repo, at `/assistant`. The main landing page (`index.html`) is a static site and stays completely untouched — this app runs independently because it needs a Node server to keep your OpenAI key secret (a static site can't do that safely).
+This is its own standalone Next.js project (separate GitHub repo, separate deployment) from the Sunny Scholars landing page (`index.html`), which is a static site. This app runs independently because it needs a Node server to keep your OpenAI key secret (a static site can't do that safely).
 
 ## Setup
 
@@ -29,16 +29,13 @@ Then run it locally:
 npm run dev
 ```
 
-Visit `http://localhost:3000/assistant` (the app is configured with `basePath: "/assistant"` in `next.config.js`).
+Visit `http://localhost:3000`.
 
 ## Deploying
 
-This app needs a Node-capable host (it has a server API route) — **not** the same static hosting as the landing page. The two easiest options:
+This app needs a Node-capable host (it has a server API route) — **not** the same static hosting as the landing page. Deploy it to Vercel (or Netlify): import this repo, set `OPENAI_API_KEY` (and optionally `OPENAI_MODEL`) as environment variables in the dashboard — never in code — and it'll be live at the domain/subdomain your host gives you (e.g. `your-project.vercel.app`).
 
-1. **Same domain, sub-path** (`sunnyscholarslearning.com/assistant`): deploy this folder as its own project on Vercel/Netlify, then add a rewrite/proxy rule on your main domain so `/assistant/*` forwards to this app's deployment URL.
-2. **Subdomain** (`assistant.sunnyscholarslearning.com`): deploy this folder as its own project and point the subdomain at it. In that case, delete the `basePath` line in `next.config.js` **and** set `BASE_PATH = ""` in `lib/config.ts` first.
-
-Either way, set `OPENAI_API_KEY` (and optionally `OPENAI_MODEL`) as environment variables in your hosting provider's dashboard — never in code.
+If you later want it reachable at `sunnyscholarslearning.com/assistant` instead of its own subdomain, set `basePath: "/assistant"` in `next.config.js` and `BASE_PATH = "/assistant"` in `lib/config.ts`, then add a rewrite/proxy rule on your main domain forwarding `/assistant/*` to this app's deployment URL.
 
 ## How it works
 
