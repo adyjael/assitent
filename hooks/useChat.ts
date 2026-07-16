@@ -125,17 +125,21 @@ export function useChat({ conversation, ensureConversation, updateConversation }
         streaming: true,
       };
 
-      let historyForApi: Message[] = [];
-      updateConversation(id, (c) => {
-        const isFirstMessage = c.messages.length === 0;
-        historyForApi = [...c.messages, userMessage];
-        return {
-          ...c,
-          title: isFirstMessage ? deriveTitle(trimmed) : c.title,
-          childAge: detectedAge ?? c.childAge,
-          messages: [...c.messages, userMessage, assistantMessage],
-        };
-      });
+      // Computed directly from the closed-over conversation, not from inside
+      // the updateConversation callback below — React doesn't guarantee that
+      // callback runs synchronously, so reading it back out via a side-effect
+      // variable was a race condition (it showed up as "No messages provided"
+      // in production once in a while).
+      const existingMessages = conversation?.messages ?? [];
+      const historyForApi = [...existingMessages, userMessage];
+      const isFirstMessage = existingMessages.length === 0;
+
+      updateConversation(id, (c) => ({
+        ...c,
+        title: isFirstMessage ? deriveTitle(trimmed) : c.title,
+        childAge: detectedAge ?? c.childAge,
+        messages: [...c.messages, userMessage, assistantMessage],
+      }));
 
       void runCompletion(id, historyForApi, detectedAge ?? conversation?.childAge ?? null, assistantMessage.id);
     },
